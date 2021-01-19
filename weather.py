@@ -1,6 +1,8 @@
 import tkinter as tk
-import pyglet, os
 import tkinter.font as font
+import requests
+from bs4 import BeautifulSoup as bs
+import json
 
 class Weta(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -59,12 +61,65 @@ class InputPage(tk.Frame):
         inpKabupaten.place(x = 50,
                             y = 240)
 
-        def start():
-            controller.show_frame('ResultPage')
+        def cuaca():
+        #Provinsi Dict
 
+            prov = inpProvinsi.get()
+            kab = inpKabupaten.get()
+
+            with open('provinsi.txt') as f:
+                data = f.read()
+
+            js = json.loads(data)
+
+            url = "https://www.bmkg.go.id/cuaca/prakiraan-cuaca-indonesia.bmkg"
+            valProvinsi = inpProvinsi.get()
+            valKabupaten = kab.split()
+
+            try:
+                upper = valKabupaten[0].capitalize()
+                upper2 = valKabupaten[1].capitalize()
+                getKota = upper + " " + upper2
+            except:
+                upper = valKabupaten[0].capitalize()
+                getKota = upper
+
+            param = js.get(valProvinsi)
+            getParam = url + "?Prov=" + param
+
+            req = requests.get(getParam).content
+            req = bs(req, "html.parser")
+            search = req.select("table tr td")
+
+            start = -1
+            for i in range(len(search)):
+                if search[i].get_text().find(getKota) != -1:
+                    start = i
+                    break
+
+            data = []
+            for i in range(0, 4):
+                data = data + [search[start + i].get_text()]
+
+            # print("="*40)
+            # print("PRAKIRAAN CUACA")
+            # print("Kota : ", getKota)
+            # print("Cuaca : ", data[1])
+            # print("Suhu : " + data[2] + " Celcius")
+            # print("Kelembapan : " + data[3] + " Persen")
+
+            print(data)
+
+        # Button Start
+        def start():
+            if btStart != None:
+                controller.show_frame('ResultPage')
+            else:
+                controller.show_frame('InputPage')
+    
         btStart = tk.Button(self, 
                             text = 'S T A R T',
-                            command = start,
+                            command = cuaca,
                             width = 10,
                             font = UI.fnButton)
         btStart.place(x = 100,
@@ -138,8 +193,52 @@ class UI:
     fnCelcius = f"{fnStyle} 60 bold"
     fnJam = f"{fnStyle} 24 bold"
 
-class Engine:
-    def ()
+# class Engine(object):
+    # def cuaca():
+    #     Provinsi Dict
+
+    #     prov = InputPage.inpProvinsi.get()
+    #     kab = InputPage.inpKabupaten.get()
+    #     with open('provinsi.txt') as f:
+    #         data = f.read()
+
+    #     js = json.loads(data)
+
+    #     url = "https://www.bmkg.go.id/cuaca/prakiraan-cuaca-indonesia.bmkg"
+    #     valProvinsi = prov.lower()
+    #     valKabupaten = kab.split()
+
+    #     try:
+    #         upper = valKabupaten[0].capitalize()
+    #         upper2 = valKabupaten[1].capitalize()
+    #         getKota = upper + " " + upper2
+    #     except:
+    #         upper = valKabupaten[0].capitalize()
+    #         getKota = upper
+
+    #     param = js.get(valProvinsi)
+    #     getParam = url + "?Prov=" + param
+
+    #     req = requests.get(getParam).content
+    #     req = bs(req, "html.parser")
+    #     search = req.select("table tr td")
+
+    #     start = -1
+    #     for i in range(len(search)):
+    #         if search[i].get_text().find(getKota) != -1:
+    #             start = i
+    #             break
+
+    #     data = []
+    #     for i in range(0, 4):
+    #         data = data + [search[start + i].get_text()]
+
+    #     print("="*40)
+    #     print("PRAKIRAAN CUACA")
+    #     print("Kota : ", getKota)
+    #     print("Cuaca : ", data[1])
+    #     print("Suhu : " + data[2] + " Celcius")
+    #     print("Kelembapan : " + data[3] + " Persen")
 
 if __name__ == "__main__":
     app = Weta()
