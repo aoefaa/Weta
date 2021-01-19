@@ -1,6 +1,6 @@
 import tkinter as tk
 
-class Cuaca(tk.Tk):
+class Weta(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         
@@ -51,21 +51,19 @@ class InputPage(tk.Frame):
                             text = 'S T A R T',
                             command = start,
                             width = 10)
-        btStart.place(x = 80,
+        btStart.place(x = 100,
                             y = 310)
 
 class ResultPage(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent ,controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        controller.geometry('600x600')
 
-        # Spinbox Provinsi
-        sbIndonesia = tk.Spinbox(self, 
-                                    from_ = 0,
-                                    to = 150,
-                                    width = 20)
-        sbIndonesia.place(x = 50,
-                                y = 170)
+        # Tanggal
+        txTanggal = tk.Label(text = '19 Januari 2020')
+        txTanggal.place(x = 80,
+                        y = 172)
         
         def reset():
             controller.show_frame('InputPage')
@@ -75,9 +73,9 @@ class ResultPage(tk.Frame):
                             command = reset,
                             width = 10)
 
-        btReset.place(x = 80,
+        btReset.place(x = 100,
                             y = 310)
 
 if __name__ == "__main__":
-    app = Cuaca()
+    app = Weta()
     app.mainloop()
