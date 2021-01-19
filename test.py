@@ -1,7 +1,8 @@
-import js
-
-read = open('provinsi.txt', 'r')
-read_names = read.read()
+import json
 
 with open('provinsi.txt') as f:
     data = f.read()
+
+js = json.loads(data)
+
+print(js)

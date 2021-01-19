@@ -31,21 +31,33 @@ class InputPage(tk.Frame):
         tk.Frame.__init__(self, parent, bg = '#5CDB94')
         self.controller = controller
 
-        # Spinbox Provinsi
-        sbProvinsi = tk.Spinbox(self, 
-                                    value = 'provinsi.txt',
-                                    width = 20,
+        # Label Provinsi
+        txProvinsi = tk.Label(self,
+                                text = 'Provinsi :',
+                                font = UI.fnBody)
+        txProvinsi.place(x = 50,
+                            y = 140)
+        # Entry Provinsi
+        inpProvinsi = tk.Entry(self,
+                                    width = 22,
                                     font = UI.fnBody)
-        sbProvinsi.place(x = 50,
-                                y = 170)
+        inpProvinsi.place(x = 50,
+                            y = 170)
 
-        # Spinbox Kabupaten
-        sbKabupaten = tk.Spinbox(self, 
-                                    value = 'Kabupaten/Kota',
-                                    width = 20,
+        # Label Kabupaten
+        txKabupaten = tk.Label(self,
+                                text = 'Kabupaten/Kota :',
+                                font = UI.fnBody)
+        txKabupaten.place(x = 50,
+                            y = 210)
+
+        # Entry Kabupaten
+        inpKabupaten = tk.Entry(self, 
+                                    text = 'Kabupaten/Kota',
+                                    width = 22,
                                     font = UI.fnBody)
-        sbKabupaten.place(x = 50,
-                                y = 240)
+        inpKabupaten.place(x = 50,
+                            y = 240)
 
         def start():
             controller.show_frame('ResultPage')
@@ -125,6 +137,9 @@ class UI:
     fnTanggal = f"{fnStyle} 14"
     fnCelcius = f"{fnStyle} 60 bold"
     fnJam = f"{fnStyle} 24 bold"
+
+class Engine:
+    def ()
 
 if __name__ == "__main__":
     app = Weta()
