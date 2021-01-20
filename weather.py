@@ -21,6 +21,13 @@ class Weta(object):
     def __init__(self, master):
         frame = Frame(master)
         frame.pack()
+        
+        self.wil = Wilayah()
+        self.itemProvinsi = self.wil.get_provinsi()
+        self.listKabupaten = []
+        self.listProvinsi = []
+        for i in self.itemProvinsi:
+            self.listProvinsi.append(i['name'])
 
         # Label Provinsi
         self.txProvinsi = Label(root,
@@ -28,12 +35,14 @@ class Weta(object):
                                 font = UI.fnBody)
         self.txProvinsi.place(x = 80,
                             y = 155)
-        
-        self.wil = Wilayah()
-        self.itemProvinsi = self.wil.get_provinsi()
-        self.listProvinsi = []
-        for i in self.itemProvinsi:
-            self.listProvinsi.append(i['name'])
+
+        # Entry Kabupaten
+        self.inpKabupaten = Spinbox(root,
+                                value = ['Cek Kab/kota Provinsi !'],
+                                width = 22,
+                                font = UI.fnBody)
+        self.inpKabupaten.place(x = 80,
+                            y = 280)
 
         # Entry Provinsi
         self.inpProvinsi = Spinbox(root,
@@ -57,54 +66,37 @@ class Weta(object):
         self.btGetKabupaten.place(x = 290,
                                     y = 182)
 
-        # Entry Kabupaten
-        self.inpKabupaten = Spinbox(root,
-                                width = 22,
-                                font = UI.fnBody)
-        self.inpKabupaten.place(x = 80,
-                            y = 280)
-
-        # Button Start
-        self.btStart = Button(root, 
-                            text = 'S T A R T',
-                            width = 10,
-                            # command = self.proses,
-                            font = UI.fnButton,
-                            height = 2)
-        self.btStart.place(x = 127,
-                        y = 350)
-
         # Tanggal
         self.txTanggal = Label(root,
-                                text = '19 Januari 2020',
+                                text = '',
                                 font = UI.fnTanggal)
         self.txTanggal.place(x = 370,
                         y = 142)
 
         # Hari
         self.txHari = Label(root,
-                            text = 'Selasa',
+                            text = '',
                             font = UI.fnBody)
         self.txHari.place(x = 370,
                         y = 167)
 
         # Jam
         self.txJam = Label(root,
-                            text = '19:00',
+                            text = '',
                             font = UI.fnJam)
         self.txJam.place(x = 540,
                         y = 150)
 
         # Celcius
         self.txCelcius = Label(root,
-                                text = '27',
+                                text = '',
                                 font = UI.fnCelcius)
         self.txCelcius.place(x = 400,
                         y = 210)
 
         # Awan
         self.txAwan = Label(root,
-                            text = 'Berawan',
+                            text = '',
                             font = UI.fnBody)
         self.txAwan.place(x = 485,
                             y = 370,
@@ -112,19 +104,51 @@ class Weta(object):
 
         # Alamat
         self.txAlamat = Label(root,
-                                text = 'Hulu Sungai Tengah, Kalimantan Selatan',
+                                text = '',
                                 font = UI.fnAlamat)
         self.txAlamat.place(x = 480,
                         y = 420,
                         anchor = CENTER)
+
+        # Button Start
+        self.btStart = Button(root, 
+                            text = 'S T A R T',
+                            width = 10,
+                            command = self.proses,
+                            font = UI.fnButton,
+                            height = 2)
+        self.btStart.place(x = 127,
+                        y = 350)
         
+        # Button Reset
         self.btReset = Button(root, 
                             text = 'R E S E T',
                             width = 10,
+                            command = self.reset,
                             font = UI.fnButton,
                             height = 2)
         self.btReset.place(x = 440,
                         y = 470)
+
+    def getKabupaten(self):
+        
+        idProv = None
+
+        valProvinsi = self.inpProvinsi.get()
+        itemKabupaten = self.wil.get_kabupaten()
+        
+        for i in self.itemProvinsi:
+            self.listProvinsi.append(i['name'])
+
+        for i in self.listProvinsi:
+            if i == valProvinsi:
+                idProv = str(self.listProvinsi.index(valProvinsi) + 1).zfill(2)
+
+        for i in itemKabupaten:
+            if i['prov'] == idProv:
+                self.listKabupaten.append(i['name'])
+
+        self.inpKabupaten.configure(value = self.listKabupaten)
 
     def proses(self):
         self.valProvinsi = self.inpProvinsi.get()
@@ -135,10 +159,10 @@ class Weta(object):
         results = []
 
         wil = Wilayah()
-        provList = wil.get_provinsi()
+        self.itemProvinsi = self.wil.get_provinsi()
         kabList = wil.get_kabupaten()
 
-        for i in provList:
+        for i in self.itemProvinsi:
             if i['name'] == self.valProvinsi:
                 provinsi.append(i)
 
@@ -198,21 +222,15 @@ class Weta(object):
         self.txTanggal.configure(text = tanggal)
         self.txHari.configure(text = hari)
 
-    def getKabupaten(self):
-        self.wil = Wilayah()
-        self.valProvinsi = str(self.inpProvinsi.get())
-        self.idProv = []
-        self.listKabupaten = []
-        self.itemKabupaten = self.wil.get_kabupaten()
-        for i in self.listProvinsi:
-            if i == self.valProvinsi:
-                self.idProv = str(self.listProvinsi.index(self.valProvinsi) + 1)
-        
-        for i in self.itemKabupaten:
-            if i['prov'] == self.idProv:
-                self.listKabupaten.append(i['name'])
-        print('berhasil', self.listKabupaten)
-        self.inpKabupaten.configure(value = self.listKabupaten)            
+    def reset(self):
+        self.txTanggal.configure(text = '')
+        self.txHari.configure(text = '')
+        self.txCelcius.configure(text = '')
+        self.txJam.configure(text = '')
+        self.txAwan.configure(text = '')
+        self.txAlamat.configure(text = '')
+        self.inpKabupaten.configure(value = ['Cek Kab/kota Provinsi !'])
+
 if __name__ == "__main__":
     root = tk.Tk()
     root.title('Kalkulator BMI Sederhana')

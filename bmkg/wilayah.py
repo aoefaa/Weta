@@ -40,7 +40,7 @@ class Wilayah(object):
             raw_kab = simple_get(prov['url'])
             html = bs(raw_kab, 'html.parser')
             
-            div = html.find('div', {'id': 'TabPaneCuaca1'})
+            div = html.find('div', {'id': 'TabPaneCuaca2'})
 
             table = div.find('table', {'class': 'table-prakicu-provinsi'})
 
