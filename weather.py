@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup as bs
 import json
 from bmkg.wilayah import Wilayah
 from bmkg.req import simple_get
+import time
 
 class UI:
     fnStyle = 'Amiko'
@@ -27,9 +28,16 @@ class Weta(object):
                                 font = UI.fnBody)
         self.txProvinsi.place(x = 80,
                             y = 155)
+        
+        self.wil = Wilayah()
+        self.itemProvinsi = self.wil.get_provinsi()
+        self.listProvinsi = []
+        for i in self.itemProvinsi:
+            self.listProvinsi.append(i['name'])
 
         # Entry Provinsi
-        self.inpProvinsi = Entry(root,
+        self.inpProvinsi = Spinbox(root,
+                                value = self.listProvinsi,
                                 width = 22,
                                 font = UI.fnBody)
         self.inpProvinsi.place(x = 80,
@@ -42,9 +50,15 @@ class Weta(object):
         self.txKabupaten.place(x = 80,
                             y = 255)
 
+        # Button Get Kabupaten
+        self.btGetKabupaten = Button(root,
+                                    command = self.getKabupaten,
+                                    text = 'Cek')
+        self.btGetKabupaten.place(x = 290,
+                                    y = 182)
+
         # Entry Kabupaten
-        self.inpKabupaten = Entry(root, 
-                                text = 'Kabupaten/Kota',
+        self.inpKabupaten = Spinbox(root,
                                 width = 22,
                                 font = UI.fnBody)
         self.inpKabupaten.place(x = 80,
@@ -54,11 +68,11 @@ class Weta(object):
         self.btStart = Button(root, 
                             text = 'S T A R T',
                             width = 10,
-                            command = self.proses,
+                            # command = self.proses,
                             font = UI.fnButton,
                             height = 2)
         self.btStart.place(x = 127,
-                        y = 330)
+                        y = 350)
 
         # Tanggal
         self.txTanggal = Label(root,
@@ -92,14 +106,15 @@ class Weta(object):
         self.txAwan = Label(root,
                             text = 'Berawan',
                             font = UI.fnBody)
-        self.txAwan.place(x = 450,
-                        y = 370)
+        self.txAwan.place(x = 485,
+                            y = 370,
+                            anchor = CENTER)
 
         # Alamat
         self.txAlamat = Label(root,
                                 text = 'Hulu Sungai Tengah, Kalimantan Selatan',
                                 font = UI.fnAlamat)
-        self.txAlamat.place(x = 475,
+        self.txAlamat.place(x = 480,
                         y = 420,
                         anchor = CENTER)
         
@@ -109,10 +124,11 @@ class Weta(object):
                             font = UI.fnButton,
                             height = 2)
         self.btReset.place(x = 440,
-                        y = 500)
+                        y = 470)
+
     def proses(self):
-        valProvinsi = self.inpProvinsi.get()
-        valKabupaten = self.inpKabupaten.get()
+        self.valProvinsi = self.inpProvinsi.get()
+        self.valKabupaten = self.inpKabupaten.get()
 
         provinsi = []
         kabupaten = []
@@ -123,11 +139,11 @@ class Weta(object):
         kabList = wil.get_kabupaten()
 
         for i in provList:
-            if i['name'] == valProvinsi:
+            if i['name'] == self.valProvinsi:
                 provinsi.append(i)
 
         for i in kabList:
-            if i['name'] == valKabupaten:
+            if i['name'] == self.valKabupaten:
                 kabupaten.append(i)
 
         namaKab = kabupaten[0]['name']
@@ -165,6 +181,10 @@ class Weta(object):
                     "cuaca": cuaca,
                     "suhu": suhu,
                 })
+        
+        jam = time.strftime('%H:%M')
+        tanggal = time.strftime('%d %B %Y')
+        hari = time.strftime('%A')
 
         cuacaKab = results[0]['cuaca']
         suhuKab = results[0]['suhu']
@@ -174,7 +194,25 @@ class Weta(object):
         self.txAlamat.configure(text = valAlamat)
         self.txCelcius.configure(text = suhuKab)
         self.txAwan.configure(text = cuacaKab)
-            
+        self.txJam.configure(text = jam)
+        self.txTanggal.configure(text = tanggal)
+        self.txHari.configure(text = hari)
+
+    def getKabupaten(self):
+        self.wil = Wilayah()
+        self.valProvinsi = str(self.inpProvinsi.get())
+        self.idProv = []
+        self.listKabupaten = []
+        self.itemKabupaten = self.wil.get_kabupaten()
+        for i in self.listProvinsi:
+            if i == self.valProvinsi:
+                self.idProv = str(self.listProvinsi.index(self.valProvinsi) + 1)
+        
+        for i in self.itemKabupaten:
+            if i['prov'] == self.idProv:
+                self.listKabupaten.append(i['name'])
+        print('berhasil', self.listKabupaten)
+        self.inpKabupaten.configure(value = self.listKabupaten)            
 if __name__ == "__main__":
     root = tk.Tk()
     root.title('Kalkulator BMI Sederhana')
