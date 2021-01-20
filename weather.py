@@ -233,7 +233,7 @@ class Weta(object):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title('Kalkulator BMI Sederhana')
+    root.title('Weta')
     Weta(root)
     root.geometry("700x600")
     root.mainloop()
