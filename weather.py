@@ -1,245 +1,183 @@
 import tkinter as tk
+from tkinter import *
 import tkinter.font as font
 import requests
 from bs4 import BeautifulSoup as bs
 import json
+from bmkg.wilayah import Wilayah
+from bmkg.req import simple_get
 
-class Weta(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        
-        container = tk.Frame(self)
-        container.pack(side = 'top', fill = 'both', expand = True)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        self.frames = {}
-        for F, geometry in zip((InputPage, ResultPage), ('300x400', '600x600')):
-            page_name = F.__name__
-            frame = F(parent = container, controller = self)
-            self.frames[page_name] = (frame, geometry)
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame("InputPage")
-
-    def show_frame(self, page_name):
-        frame, geometry = self.frames[page_name]
-        self.update_idletasks()
-        self.geometry(geometry)
-        frame.tkraise()
-
-class InputPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent, bg = '#5CDB94')
-        self.controller = controller
-
-        # Label Provinsi
-        txProvinsi = tk.Label(self,
-                                text = 'Provinsi :',
-                                font = UI.fnBody)
-        txProvinsi.place(x = 50,
-                            y = 140)
-        # Entry Provinsi
-        inpProvinsi = tk.Entry(self,
-                                    width = 22,
-                                    font = UI.fnBody)
-        inpProvinsi.place(x = 50,
-                            y = 170)
-
-        # Label Kabupaten
-        txKabupaten = tk.Label(self,
-                                text = 'Kabupaten/Kota :',
-                                font = UI.fnBody)
-        txKabupaten.place(x = 50,
-                            y = 210)
-
-        # Entry Kabupaten
-        inpKabupaten = tk.Entry(self, 
-                                    text = 'Kabupaten/Kota',
-                                    width = 22,
-                                    font = UI.fnBody)
-        inpKabupaten.place(x = 50,
-                            y = 240)
-
-        def cuaca():
-        #Provinsi Dict
-
-            prov = inpProvinsi.get()
-            kab = inpKabupaten.get()
-
-            with open('provinsi.txt') as f:
-                data = f.read()
-
-            js = json.loads(data)
-
-            url = "https://www.bmkg.go.id/cuaca/prakiraan-cuaca-indonesia.bmkg"
-            valProvinsi = inpProvinsi.get()
-            valKabupaten = kab.split()
-
-            try:
-                upper = valKabupaten[0].capitalize()
-                upper2 = valKabupaten[1].capitalize()
-                getKota = upper + " " + upper2
-            except:
-                upper = valKabupaten[0].capitalize()
-                getKota = upper
-
-            param = js.get(valProvinsi)
-            getParam = url + "?Prov=" + param
-
-            req = requests.get(getParam).content
-            req = bs(req, "html.parser")
-            search = req.select("table tr td")
-
-            start = -1
-            for i in range(len(search)):
-                if search[i].get_text().find(getKota) != -1:
-                    start = i
-                    break
-
-            data = []
-            for i in range(0, 4):
-                data = data + [search[start + i].get_text()]
-
-            # print("="*40)
-            # print("PRAKIRAAN CUACA")
-            # print("Kota : ", getKota)
-            # print("Cuaca : ", data[1])
-            # print("Suhu : " + data[2] + " Celcius")
-            # print("Kelembapan : " + data[3] + " Persen")
-
-            print(data)
-
-        # Button Start
-        def start():
-            if btStart != None:
-                controller.show_frame('ResultPage')
-            else:
-                controller.show_frame('InputPage')
-    
-        btStart = tk.Button(self, 
-                            text = 'S T A R T',
-                            command = cuaca,
-                            width = 10,
-                            font = UI.fnButton)
-        btStart.place(x = 100,
-                            y = 310)
-
-class ResultPage(tk.Frame):
-    def __init__(self, parent ,controller):
-        tk.Frame.__init__(self, parent, bg = '#5CDB94')
-        self.controller = controller
-        self.controller.geometry('600x600')
-
-        # Tanggal
-        txTanggal = tk.Label(self,
-                                text = '19 Januari 2020',
-                                font = UI.fnTanggal)
-        txTanggal.place(x = 80,
-                        y = 170)
-
-        # Hari
-        txHari = tk.Label(self,
-                            text = 'Selasa',
-                            font = UI.fnBody)
-        txHari.place(x = 80,
-                    y = 200)
-
-        # Jam
-        txJam = tk.Label(self,
-                            text = '19:00',
-                            font = UI.fnJam)
-        txJam.place(x = 450,
-                        y = 180)
-
-        # Celcius
-        txCelcius = tk.Label(self,
-                                text = '27',
-                                font = UI.fnCelcius)
-        txCelcius.place(x = 121,
-                        y = 267)
-
-        # Awan
-        txAwan = tk.Label(self,
-                            text = 'Awan Petir',
-                            font = UI.fnBody)
-        txAwan.place(x = 128,
-                        y = 352)
-
-        # Alamat
-        txAlamat = tk.Label(self,
-                                text = 'Hulu Sungai Tengah, Kalimantan Selatan',
-                                font = UI.fnBody)
-        txAlamat.place(x = 168,
-                        y = 447)
-        
-        def reset():
-            controller.show_frame('InputPage')
-
-        btReset = tk.Button(self, 
-                            text = 'R E S E T',
-                            command = reset,
-                            width = 10,
-                            font = UI.fnButton)
-
-        btReset.place(x = 250,
-                        y = 522)
-    
 class UI:
     fnStyle = 'Amiko'
     fnButton = f"{fnStyle} 12 bold"
     fnBody = f"{fnStyle} 12" # Hari, alamat, dan awan
     fnTanggal = f"{fnStyle} 14"
-    fnCelcius = f"{fnStyle} 60 bold"
+    fnCelcius = f"{fnStyle} 30 bold"
     fnJam = f"{fnStyle} 24 bold"
+    fnAlamat = f"{fnStyle} 10"
 
-# class Engine(object):
-    # def cuaca():
-    #     Provinsi Dict
+class Weta(object):
+    def __init__(self, master):
+        frame = Frame(master)
+        frame.pack()
 
-    #     prov = InputPage.inpProvinsi.get()
-    #     kab = InputPage.inpKabupaten.get()
-    #     with open('provinsi.txt') as f:
-    #         data = f.read()
+        # Label Provinsi
+        self.txProvinsi = Label(root,
+                                text = 'Provinsi :',
+                                font = UI.fnBody)
+        self.txProvinsi.place(x = 80,
+                            y = 155)
 
-    #     js = json.loads(data)
+        # Entry Provinsi
+        self.inpProvinsi = Entry(root,
+                                width = 22,
+                                font = UI.fnBody)
+        self.inpProvinsi.place(x = 80,
+                            y = 180)
 
-    #     url = "https://www.bmkg.go.id/cuaca/prakiraan-cuaca-indonesia.bmkg"
-    #     valProvinsi = prov.lower()
-    #     valKabupaten = kab.split()
+        # Label Kabupaten
+        self.txKabupaten = Label(root,
+                                text = 'Kabupaten/Kota :',
+                                font = UI.fnBody)
+        self.txKabupaten.place(x = 80,
+                            y = 255)
 
-    #     try:
-    #         upper = valKabupaten[0].capitalize()
-    #         upper2 = valKabupaten[1].capitalize()
-    #         getKota = upper + " " + upper2
-    #     except:
-    #         upper = valKabupaten[0].capitalize()
-    #         getKota = upper
+        # Entry Kabupaten
+        self.inpKabupaten = Entry(root, 
+                                text = 'Kabupaten/Kota',
+                                width = 22,
+                                font = UI.fnBody)
+        self.inpKabupaten.place(x = 80,
+                            y = 280)
 
-    #     param = js.get(valProvinsi)
-    #     getParam = url + "?Prov=" + param
+        # Button Start
+        self.btStart = Button(root, 
+                            text = 'S T A R T',
+                            width = 10,
+                            command = self.proses,
+                            font = UI.fnButton,
+                            height = 2)
+        self.btStart.place(x = 127,
+                        y = 330)
 
-    #     req = requests.get(getParam).content
-    #     req = bs(req, "html.parser")
-    #     search = req.select("table tr td")
+        # Tanggal
+        self.txTanggal = Label(root,
+                                text = '19 Januari 2020',
+                                font = UI.fnTanggal)
+        self.txTanggal.place(x = 370,
+                        y = 142)
 
-    #     start = -1
-    #     for i in range(len(search)):
-    #         if search[i].get_text().find(getKota) != -1:
-    #             start = i
-    #             break
+        # Hari
+        self.txHari = Label(root,
+                            text = 'Selasa',
+                            font = UI.fnBody)
+        self.txHari.place(x = 370,
+                        y = 167)
 
-    #     data = []
-    #     for i in range(0, 4):
-    #         data = data + [search[start + i].get_text()]
+        # Jam
+        self.txJam = Label(root,
+                            text = '19:00',
+                            font = UI.fnJam)
+        self.txJam.place(x = 540,
+                        y = 150)
 
-    #     print("="*40)
-    #     print("PRAKIRAAN CUACA")
-    #     print("Kota : ", getKota)
-    #     print("Cuaca : ", data[1])
-    #     print("Suhu : " + data[2] + " Celcius")
-    #     print("Kelembapan : " + data[3] + " Persen")
+        # Celcius
+        self.txCelcius = Label(root,
+                                text = '27',
+                                font = UI.fnCelcius)
+        self.txCelcius.place(x = 400,
+                        y = 210)
 
+        # Awan
+        self.txAwan = Label(root,
+                            text = 'Berawan',
+                            font = UI.fnBody)
+        self.txAwan.place(x = 450,
+                        y = 370)
+
+        # Alamat
+        self.txAlamat = Label(root,
+                                text = 'Hulu Sungai Tengah, Kalimantan Selatan',
+                                font = UI.fnAlamat)
+        self.txAlamat.place(x = 475,
+                        y = 420,
+                        anchor = CENTER)
+        
+        self.btReset = Button(root, 
+                            text = 'R E S E T',
+                            width = 10,
+                            font = UI.fnButton,
+                            height = 2)
+        self.btReset.place(x = 440,
+                        y = 500)
+    def proses(self):
+        valProvinsi = self.inpProvinsi.get()
+        valKabupaten = self.inpKabupaten.get()
+
+        provinsi = []
+        kabupaten = []
+        results = []
+
+        wil = Wilayah()
+        provList = wil.get_provinsi()
+        kabList = wil.get_kabupaten()
+
+        for i in provList:
+            if i['name'] == valProvinsi:
+                provinsi.append(i)
+
+        for i in kabList:
+            if i['name'] == valKabupaten:
+                kabupaten.append(i)
+
+        namaKab = kabupaten[0]['name']
+        namaProv = provinsi[0]['name']
+        urlKab = kabupaten[0]['url']
+        
+        raw_html = simple_get(urlKab)
+        html = bs(raw_html, 'html.parser')
+        kab = html.find('div', {'class': 'prakicu-kabkota'})
+
+        for li in kab.ul.findAll('li'):
+            by_id = kab.find('div', {'id': li.a['href'].replace('#', '')})
+            for kota in by_id.findAll('div', {'class': 'prakicu-kota'}):
+
+                kiri = kota.find('div', {'class': 'kiri'})
+                cuaca = kiri.p.text
+                kanan = kota.find('div', {'class': 'kanan'})
+                suhu = kanan.h2.text
+                p = kanan.findAll('p')
+                p_atas = p[0] if len(p) >= 2 else None
+
+                for i in p_atas.findAll('i'):
+                    i.replaceWith(" ")
+
+                p_atas = str(u''.join(p_atas.text).encode('utf-8').strip()).split(' ')
+
+                p_bawah = p[1] if len(p) >= 2 else None
+                p_bawah.br.replaceWith("-")
+                for i in p_bawah.findAll('i'):
+                    i.replaceWith(" ")
+
+                p_bawah = str(u''.join(p_bawah.text).encode('utf-8').strip()).split('-')
+
+                results.append({
+                    "cuaca": cuaca,
+                    "suhu": suhu,
+                })
+
+        cuacaKab = results[0]['cuaca']
+        suhuKab = results[0]['suhu']
+
+        valAlamat = namaKab + ', ' + namaProv
+
+        self.txAlamat.configure(text = valAlamat)
+        self.txCelcius.configure(text = suhuKab)
+        self.txAwan.configure(text = cuacaKab)
+            
 if __name__ == "__main__":
-    app = Weta()
-    app.mainloop()
+    root = tk.Tk()
+    root.title('Kalkulator BMI Sederhana')
+    Weta(root)
+    root.geometry("700x600")
+    root.mainloop()
